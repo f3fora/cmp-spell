@@ -11,3 +11,8 @@ require('cmp').setup {
   }
 }
 ```
+
+## Credit
+
+- [compe-spell](https://github.com/hrsh7th/nvim-compe/blob/master/lua/compe_spell/init.lua)
+- [nvim-cmp request](https://github.com/hrsh7th/nvim-cmp/issues/69)
