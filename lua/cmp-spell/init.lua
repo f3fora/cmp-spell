@@ -1,18 +1,18 @@
 local source = {}
 
-source.new = function()
+function source.new()
     return setmetatable({}, { __index = source })
 end
 
-source.is_available = function(_)
+function source:is_available()
     return vim.wo.spell
 end
 
-source.get_keyword_pattern = function(_)
+function source:get_keyword_pattern()
     return [[\w\+]]
 end
 
-local candidates = function(entries)
+local function candidates(entries)
     local items = {}
     for k, v in ipairs(entries) do
         items[k] = { label = v }
@@ -20,7 +20,7 @@ local candidates = function(entries)
     return items
 end
 
-source.complete = function(_, request, callback)
+function source:complete(request, callback)
     local input = string.sub(request.context.cursor_before_line, request.offset)
     callback({ items = candidates(vim.fn.spellsuggest(input)), isIncomplete = true })
 end
