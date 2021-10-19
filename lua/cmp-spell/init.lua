@@ -9,7 +9,7 @@ function source:is_available()
 end
 
 function source:get_keyword_pattern()
-    return [[\w\+]]
+    return [[\K\+]]
 end
 
 local function candidates(entries)

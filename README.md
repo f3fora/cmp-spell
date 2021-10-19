@@ -15,8 +15,8 @@ require('cmp').setup {
 Setting `spell` (and `spelllang`) is mandatory to use `spellsuggest`.
 
 ```lua
-    vim.opt.spell = true
-    vim.opt.spelllang = { 'en_us' }
+vim.opt.spell = true
+vim.opt.spelllang = { 'en_us' }
 ```
 
 ## Credit
