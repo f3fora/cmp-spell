@@ -5,11 +5,16 @@
 ## Setup
 
 ```lua
-require('cmp').setup {
-  sources = {
-    { name = 'spell' }
-  }
-}
+require('cmp').setup({
+    sources = {
+        {
+            name = 'spell',
+            option = {
+                keep_all_entries = false,
+            },
+        },
+    },
+})
 ```
 
 Setting `spell` (and `spelllang`) is mandatory to use `spellsuggest`.
@@ -18,6 +23,15 @@ Setting `spell` (and `spelllang`) is mandatory to use `spellsuggest`.
 vim.opt.spell = true
 vim.opt.spelllang = { 'en_us' }
 ```
+
+## Options
+
+### `keep_all_entries`
+
+If true, all `vim.fn.spellsuggest` results are displayed in `nvim-cmp` menu. Otherwise, they are being filtered to only include fuzzy matches.
+
+Type: boolean
+Default: `false`
 
 ## Credit
 
