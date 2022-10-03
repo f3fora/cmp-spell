@@ -24,27 +24,36 @@ local function validate_option(params)
     return option
 end
 
-local function number_to_text(input, number, len)
-    local loglen = math.ceil(math.log10(len + 1))
+local function len_to_loglen(len)
+    return math.ceil(math.log10(len + 1))
+end
+
+local function number_to_text(input, number, loglen)
     return string.format(input .. '%0' .. loglen .. 'd', number)
 end
 
 local function candidates(input, option)
     local items = {}
     local entries = vim.fn.spellsuggest(input)
-    local offset = 0
+    local offset
+    local loglen
     if vim.tbl_isempty(vim.spell.check(input)) then
         offset = 1
+        loglen = len_to_loglen(#entries + offset)
+
         items[offset] = {
             label = input,
             filterText = input,
             insertText = input,
-            -- add a
-            sortText = number_to_text(input, offset, #entries + offset),
+            sortText = number_to_text(input, offset, loglen),
             -- If the current word is spelled correctly, preselect it.
             preselect = true,
         }
+    else
+        offset = 0
+        loglen = len_to_loglen(#entries + offset)
     end
+
     for k, v in ipairs(entries) do
         items[k + offset] = {
             label = v,
@@ -53,7 +62,7 @@ local function candidates(input, option)
             insertText = v,
             -- To keep the order of suggestions, add the index at the end of sortText and trick the compare algorithms.
             -- TODO: Add a custom compare function.
-            sortText = option.keep_all_entries and number_to_text(input, k + offset, #entries + offset) or v,
+            sortText = option.keep_all_entries and number_to_text(input, k + offset, loglen) or v,
             preselect = false,
         }
     end
