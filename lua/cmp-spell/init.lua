@@ -2,6 +2,9 @@ local source = {}
 
 local defaults = {
     keep_all_entries = false,
+    enable_in_context = function()
+        return true
+    end,
 }
 
 function source.new()
@@ -20,6 +23,7 @@ local function validate_option(params)
     local option = vim.tbl_deep_extend('keep', params.option, defaults)
     vim.validate({
         keep_all_entries = { option.keep_all_entries, 'boolean' },
+        enable_in_context = { option.enable_in_context, 'function' },
     })
     return option
 end
@@ -44,7 +48,7 @@ local function candidates(input, option)
         items[offset] = {
             label = input,
             filterText = input,
-            insertText = input,
+            -- insertText = input,
             sortText = number_to_text(input, offset, loglen),
             -- If the current word is spelled correctly, preselect it.
             preselect = true,
@@ -59,7 +63,7 @@ local function candidates(input, option)
             label = v,
             -- Using the `input` word as filterText, all suggestions are displayed in completion menu.
             filterText = option.keep_all_entries and input or v,
-            insertText = v,
+            -- insertText = v,
             -- To keep the order of suggestions, add the index at the end of sortText and trick the compare algorithms.
             -- TODO: Add a custom compare function.
             sortText = option.keep_all_entries and number_to_text(input, k + offset, loglen) or v,
@@ -73,7 +77,11 @@ function source:complete(params, callback)
     local option = validate_option(params)
 
     local input = string.sub(params.context.cursor_before_line, params.offset)
-    callback({ items = candidates(input, option), isIncomplete = true })
+    if option.enable_in_context() then
+        callback({ items = candidates(input, option), isIncomplete = true })
+    else
+        callback({ items = {}, isIncomplete = true })
+    end
 end
 
 local debug_name = 'spell'
