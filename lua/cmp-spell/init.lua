@@ -77,7 +77,7 @@ function source:complete(params, callback)
     local option = validate_option(params)
 
     local input = string.sub(params.context.cursor_before_line, params.offset)
-    if option.enable_in_context() then
+    if option.enable_in_context(params) then
         callback({ items = candidates(input, option), isIncomplete = true })
     else
         callback({ items = {}, isIncomplete = true })
