@@ -5,6 +5,11 @@ local defaults = {
     enable_in_context = function()
         return true
     end,
+    definition = {
+      enable = false,
+      command = { "" },
+      format = function(_) end
+    }
 }
 
 function source.new()
@@ -24,6 +29,10 @@ local function validate_option(params)
     vim.validate({
         keep_all_entries = { option.keep_all_entries, 'boolean' },
         enable_in_context = { option.enable_in_context, 'function' },
+        definition = { option.definition, 'table' },
+        definition_enable = { option.definition.enable, 'boolean' },
+        definition_command = { option.definition.command, 'table' },
+        definition_format = { option.definition.format, 'function' }
     })
     return option
 end
@@ -73,8 +82,10 @@ local function candidates(input, option)
     return items
 end
 
+local option
+
 function source:complete(params, callback)
-    local option = validate_option(params)
+    option = validate_option(params)
 
     local input = string.sub(params.context.cursor_before_line, params.offset)
     if option.enable_in_context(params) then
@@ -82,6 +93,32 @@ function source:complete(params, callback)
     else
         callback({ items = {}, isIncomplete = true })
     end
+end
+
+local function run_job(cmd)
+  local result = {}
+  local id = vim.fn.jobstart(cmd, {
+    on_stdout = function(_, data)
+      for _, v in ipairs(data) do
+        table.insert(result, v)
+      end
+    end,
+    stdout_buffered = true
+  })
+  vim.fn.jobwait({ id })
+  return result
+end
+
+function source:resolve(item, callback)
+  if item.documentation == nil and option.definition.enable then
+    local command = vim.tbl_map(function(c)
+      return c:gsub("${word}", item.label)
+    end, option.definition.command)
+    local result = run_job(command)
+    local text = option.definition.format(result)
+    item.documentation = text
+  end
+  callback(item)
 end
 
 local debug_name = 'spell'
